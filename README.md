@@ -7,8 +7,6 @@
 
 - **Traffic**
   - [ ] [gZip](https://ruhighload.com/%D0%A1%D0%B6%D0%B0%D1%82%D0%B8%D0%B5+gzip+%D0%B4%D0%BB%D1%8F+js%2fcss%2fhtml)
-- **Error**
-  - [ ] [upstream timed out](https://ruhighload.com/%D0%9E%D1%88%D0%B8%D0%B1%D0%BA%D0%B0+upstream+timed+out+%D0%B2+nginx)
   
 ### Clickhouse
 
