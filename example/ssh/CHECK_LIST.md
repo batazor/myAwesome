@@ -1,0 +1,4 @@
+- [ ] Disable auth by password `PasswordAuthentication no`
+- [ ] Use white list IP `AllowUsers = *@123.123.123.123`
+- [ ] Use only protocol version 2
+- [ ] Disable login `root`

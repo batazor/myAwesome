@@ -15,7 +15,10 @@ server {
   root $base_root;
 
   charset utf-8;
+  client_body_buffer_size 10K;
+  client_header_buffer_size 10k;
   client_max_body_size 32M;
+  large_client_header_buffers 2 10k;
 
   location / {
     # Redirect everything that isn't a real file to index.php
@@ -34,18 +37,18 @@ server {
 
   # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
   location ~ ^/.+\.php(/|$) {
-    limit_req   zone=flood;
+    limit_req zone=flood;
 
     fastcgi_buffer_size 128k;
   	fastcgi_buffers 256 4k;
   	fastcgi_busy_buffers_size 256k;
   	fastcgi_temp_file_write_size 256k;
 
+    try_files $fastcgi_script_name =404;
     include fastcgi_params;
     fastcgi_split_path_info ^(.+\.php)(.*)$;
     fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
     fastcgi_pass 127.0.0.1:9000;
-    try_files $fastcgi_script_name =404;
   }
   fastcgi_intercept_errors on;
 
