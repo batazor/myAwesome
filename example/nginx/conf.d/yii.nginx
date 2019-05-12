@@ -1,0 +1,63 @@
+server {
+  listen       80;
+  server_name  _;
+
+  add_header X-DNS-Prefetch-Control off;
+  add_header X-Frame-Options SAMEORIGIN;
+  add_header X-Download-Options noopen;
+  add_header X-Content-Type-Options nosniff;
+  add_header X-XSS-Protection "1; mode=block";
+
+  limit_conn conn_limit_per_ip 10;
+	limit_req zone=req_limit_per_ip burst=10 nodelay;
+
+  set $base_root /var/lib/nginx/html;
+  root $base_root;
+
+  charset utf-8;
+  client_max_body_size 32M;
+
+  location / {
+    # Redirect everything that isn't a real file to index.php
+    root $base_root/web;
+    try_files $uri $uri/ /web/index.php$is_args$args;
+  }
+
+  location ~ ^/(protected|framework|themes/\w+/views) {
+    deny  all;
+  }
+
+  #avoid processing of calls to unexisting static files by yii
+  location ~ \.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)$ {
+    try_files $uri =404;
+  }
+
+  # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+  location ~ ^/.+\.php(/|$) {
+    limit_req   zone=flood;
+
+    fastcgi_buffer_size 128k;
+  	fastcgi_buffers 256 4k;
+  	fastcgi_busy_buffers_size 256k;
+  	fastcgi_temp_file_write_size 256k;
+
+    include fastcgi_params;
+    fastcgi_split_path_info ^(.+\.php)(.*)$;
+    fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+    fastcgi_pass 127.0.0.1:9000;
+    try_files $fastcgi_script_name =404;
+  }
+  fastcgi_intercept_errors on;
+
+  # redirect server error pages to the static page /50x.html
+  error_page 500 502 503 504 /50x.html;
+  location = /50x.html {
+    root /usr/share/nginx/html;
+  }
+
+  # deny access to .htaccess files, if Apache's document root
+  # concurs with nginx's one
+  location ~ /\. {
+    deny  all;
+  }
+}

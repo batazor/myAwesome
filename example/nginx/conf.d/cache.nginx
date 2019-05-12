@@ -1,0 +1,30 @@
+# Cache server
+server {
+  listen 80;
+
+  location / {
+    if ($http_cookie ~* ".+" ) {
+      set $do_not_cache 1;
+    }
+
+    proxy_pass http://127.0.0.1:81/;
+    proxy_cache all;
+    proxy_cache_valid 404 502 503 1m; # For cache error-page
+    proxy_cache_valid any 1h;
+  }
+}
+
+# Main server
+server {
+  listen 81;
+
+  location / {
+    # fpm и т.п.
+  }
+
+  location ~ \.php$ {
+    # fpm и т.п.
+    fastcgi_cache fcgi;
+    fastcgi_cache_valid 200 60m;
+  }
+}
